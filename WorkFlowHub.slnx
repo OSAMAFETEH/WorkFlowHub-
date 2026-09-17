@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="WorkFlowHub.Application/WorkFlowHub.Application.csproj" />
+  <Project Path="WorkFlowHub.Domain/WorkFlowHub.Domain.csproj" />
+  <Project Path="WorkFlowHub.Infrastructure/WorkFlowHub.Infrastructure.csproj" />
+  <Project Path="WorkFlowHub.Tests/WorkFlowHub.Tests.csproj" />
+  <Project Path="WorkFlowHub.Web/WorkFlowHub.Web.csproj" />
+</Solution>
