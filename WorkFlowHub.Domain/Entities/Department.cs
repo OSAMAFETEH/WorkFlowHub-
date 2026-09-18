@@ -2,7 +2,7 @@
 
 namespace WorkFlowHub.Domain.Entities
 {
-    internal class Department
+    public  class Department
     {
         public int Id { get; set; }
 
