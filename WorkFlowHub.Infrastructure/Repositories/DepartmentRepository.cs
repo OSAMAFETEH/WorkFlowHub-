@@ -42,10 +42,12 @@ namespace WorkFlowHub.Infrastructure.Repositories
             _context.Departments.Remove(department);
         }
 
-        public async Task<bool> ExistsByNameAsync(string name)
+        public async Task<bool> ExistsByNameAsync(string name,int? excludeId = null)
         {
             return await _context.Departments
-                .AnyAsync(d => d.Name == name);
+                .AnyAsync(d => d.Name == name &&
+                      (!excludeId.HasValue || d.Id != excludeId.Value));
+                
         }
 
         public async Task SaveChangesAsync()

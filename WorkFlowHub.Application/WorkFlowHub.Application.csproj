@@ -5,12 +5,9 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <Folder Include="DTOs\" />
-    <Folder Include="Interfaces\" />
     <Folder Include="Features\" />
     <Folder Include="Common\" />
     <Folder Include="Vaildators\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
   <PropertyGroup>

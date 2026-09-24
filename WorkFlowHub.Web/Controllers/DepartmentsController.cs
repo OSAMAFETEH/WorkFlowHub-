@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WorkFlowHub.Application.Services;
-
+using WorkFlowHub.Application.DTOs.Departments;
 namespace WorkFlowHub.Web.Controllers;
 
 public class DepartmentsController : Controller
@@ -25,22 +25,24 @@ public class DepartmentsController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    [ValidateAntiForgeryToken] 
     public async Task<IActionResult> Create(
-        string name,
-        string? description)
+       CreateDepartmentsDto dto)
     {
-        var result = await _service.CreateAsync(
-            name,
-            description);
+        if (!ModelState.IsValid)
+        {
+            return View(dto);
+        }
+
+        var result = await _service.CreateAsync(dto);
 
         if (!result.Success)
         {
             ModelState.AddModelError(
-                "Name",
+                nameof(dto.Name),
                 result.Error!);
 
-            return View();
+            return View(dto);
         }
 
         return RedirectToAction(nameof(Index));

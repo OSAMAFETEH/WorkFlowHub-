@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "WorkFlowHub.Application": {
+      "commandName": "Project"
+    }
+  }
+}

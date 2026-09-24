@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using WorkFlowHub.Application.Interfaces;
 using WorkFlowHub.Domain.Entities;
-
+using WorkFlowHub.Application.DTOs.Departments;
 namespace WorkFlowHub.Application.Services
 {
     public class DepartmentService
@@ -15,9 +15,20 @@ namespace WorkFlowHub.Application.Services
             _repository = repository;
         }
 
-        public async Task<List<Department>> GetAllAsync()
+        public async Task<List<DepartmentDto>> GetAllAsync()
         {
-            return await _repository.GetAllAsync();
+            var departments = await _repository.GetAllAsync();
+
+            return departments
+                .Select(d => new DepartmentDto
+                {
+                    Id = d.Id,
+                    Name = d.Name,
+                    Description = d.Description,
+                    CreatedAt = d.CreatedAt,
+                    EmployeeCount = 0
+                })
+                .ToList();
         }
 
         public async Task<Department?> GetByIdAsync(int id)
@@ -25,26 +36,19 @@ namespace WorkFlowHub.Application.Services
             return await _repository.GetByIdAsync(id);
         }
 
-        public async Task<(bool Success, string? Error)> CreateAsync(
-            string name,
-            string? description)
+        public async Task<(bool Success, string? Error)> CreateAsync(CreateDepartmentsDto dto)
         {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                return (false, "Department name is required.");
-            }
-
-            name = name.Trim();
+            var name= dto.Name.Trim();
 
             if (await _repository.ExistsByNameAsync(name))
             {
                 return (false, "Department already exists.");
             }
 
-            var department = new Department
+            Department department = new Department
             {
                 Name = name,
-                Description = description?.Trim(),
+                Description = dto.Description?.Trim(),
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -53,7 +57,29 @@ namespace WorkFlowHub.Application.Services
 
             return (true, null);
         }
+        public async Task<(bool Success, string? Error)> UpdateAsync(int id, UpdateDepartmentDto dto)
+        {
+            var department = await _repository.GetByIdAsync(id);
+            if (department is null)
+            {
+                return (false, "Department not found.");
+            }
+            var name = dto.Name.Trim();
 
+            if (await _repository.ExistsByNameAsync(name, id))
+            {
+                return (false, "Another department already uses this name.");
+            }
+            department.Name = name;
+            department.Description = dto.Description?.Trim();
+
+            _repository.Update(department);
+
+            await _repository.SaveChangesAsync();
+
+            return (true, null);
+
+        }
         public async Task<bool> DeleteAsync(int id)
         {
             var department = await _repository.GetByIdAsync(id);
