@@ -47,7 +47,53 @@ public class DepartmentsController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var department = await _service.GetByIdAsync(id);
 
+        if (department is null)
+        {
+            return NotFound();
+        }
+
+        var dto = new UpdateDepartmentDto
+        {
+            Name = department.Name,
+            Description = department.Description
+        };
+
+        return View(dto);
+    }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(
+    int id,
+    UpdateDepartmentDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(dto);
+        }
+
+        var result = await _service.UpdateAsync(id, dto);
+
+        if (!result.Success)
+        {
+            if (result.Error == "Department not found.")
+            {
+                return NotFound();
+            }
+
+            ModelState.AddModelError(
+                nameof(dto.Name),
+                result.Error!);
+
+            return View(dto);
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

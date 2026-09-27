@@ -12,6 +12,9 @@ namespace WorkFlowHub.Infrastructure.Data.Configurations
             builder.Property(d => d.Name).IsRequired().HasMaxLength(100);
             builder.Property(d => d.Description).HasMaxLength(500);
             builder.Property(d => d.CreatedAt).IsRequired();
+            builder.Property(d => d.RowVersion)
+                                 .IsRowVersion()
+                                 .IsConcurrencyToken();
         }
     }
 }
