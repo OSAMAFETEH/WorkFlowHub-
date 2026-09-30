@@ -1,4 +1,4 @@
-﻿
+﻿using Microsoft.EntityFrameworkCore;
 using WorkFlowHub.Application.Common;
 using WorkFlowHub.Application.DTOs.Employees;
 using WorkFlowHub.Application.Interfaces;
@@ -8,17 +8,19 @@ namespace WorkFlowHub.Application.Services;
 
 public class EmployeeService
 {
-    private readonly IEmployeeRepository _repository;
+    private readonly IEmployeeRepository _employee_Repo;
+    private readonly IDepartmentRepository _department_Repo;
 
-    public EmployeeService(IEmployeeRepository repository)
+    public EmployeeService(IEmployeeRepository employeeRepository,IDepartmentRepository departmentRepository)
     {
-        _repository = repository;
+        _employee_Repo = employeeRepository;
+        _department_Repo = departmentRepository;
     }
 
     public async Task<PagedResult<EmployeeDto>> SearchAsync(
         EmployeeQueryDto request)
     {
-        var query = _repository.Query();
+        var query = _employee_Repo.Query();
 
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
@@ -80,5 +82,28 @@ public class EmployeeService
             PageSize = pageSize,
             TotalCount = totalCount
         };
+    }
+    public async Task<(bool Success, string? Error)>CreateAsync(CreateEmployeeDto dto)
+    {
+        var email = dto.Email.ToLowerInvariant().Trim();
+        if(await _employee_Repo.ExistsByEmailAsync(email))
+        {
+            return (false, "Email is already registered.");
+        }
+        if(!await _department_Repo.ExistAsync(dto.DepartmentId))
+        {
+            return (false, "Selected department does not exist.");
+        }
+        var employee = new Employee
+        {
+            FullName = dto.FullName.Trim(),
+            HireDate = dto.HireDate,
+            Email = email,
+            DepartmentId=dto.DepartmentId
+        };
+        await _employee_Repo.AddAsync(employee);
+        await _employee_Repo.SaveChangesAsync();
+        return (true, null);
+
     }
 }

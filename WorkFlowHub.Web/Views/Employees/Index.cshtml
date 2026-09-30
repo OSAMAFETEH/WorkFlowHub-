@@ -64,14 +64,14 @@
           page++)
     {
         <a asp-action="Index"
-           asp-route-page="@Page"
+           asp-route-page="@Model.Page"
            asp-route-pageSize="@Model.PageSize"
            class="btn btn-sm
                   @(page == Model.Page
                       ? "btn-primary"
                       : "btn-outline-primary")">
 
-            @Page
+            @Model.Page
 
         </a>
     }

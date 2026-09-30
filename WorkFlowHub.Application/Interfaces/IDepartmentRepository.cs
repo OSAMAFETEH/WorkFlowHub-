@@ -18,7 +18,7 @@ namespace WorkFlowHub.Application.Interfaces
         void Delete(Department department);
 
         Task<bool> ExistsByNameAsync(string name,int? excludeId=null);
-
+        Task<bool> ExistAsync(int id);
         Task SaveChangesAsync();
     }
 }

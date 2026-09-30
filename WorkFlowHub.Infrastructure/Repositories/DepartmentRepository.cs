@@ -49,7 +49,10 @@ namespace WorkFlowHub.Infrastructure.Repositories
                       (!excludeId.HasValue || d.Id != excludeId.Value));
                 
         }
-
+        public async Task<bool>ExistAsync(int id)
+        {
+           return await _context.Departments.AnyAsync(d => d.Id == id);
+        }
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
