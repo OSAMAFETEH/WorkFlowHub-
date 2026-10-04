@@ -106,4 +106,74 @@ public class EmployeeService
         return (true, null);
 
     }
+    public async Task<EmployeeDto?> GetByIdAsync(int id)
+    {
+        var employee = await _employee_Repo.GetByIdAsync(id);
+
+        if (employee is null)
+            return null;
+
+        return new EmployeeDto
+        {
+            Id = employee.Id,
+            FullName = employee.FullName,
+            Email = employee.Email,
+            HireDate = employee.HireDate,
+            DepartmentId = employee.DepartmentId,
+            DepartmentName = employee.Department.Name ?? "No Department"
+        };
+    }
+    public async Task<(bool Success, string? Error)> UpdateAsync(
+    int id,
+    UpdateEmployeeDto dto)
+    {
+        var employee =
+            await _employee_Repo.GetByIdAsync(id);
+
+        if (employee is null)
+        {
+            return (false, "Employee not found.");
+        }
+
+        if (!await _department_Repo
+            .ExistAsync(dto.DepartmentId))
+        {
+            return (false, "Selected department does not exist.");
+        }
+
+        var email = dto.Email
+            .Trim()
+            .ToLowerInvariant();
+
+        if (await _employee_Repo
+            .ExistsByEmailAsync(email, id))
+        {
+            return (false, "Email is already registered.");
+        }
+
+        employee.FullName = dto.FullName.Trim();
+        employee.Email = email;
+        employee.HireDate = dto.HireDate;
+        employee.DepartmentId = dto.DepartmentId;
+
+        _employee_Repo.Update(employee);
+
+        await _employee_Repo.SaveChangesAsync();
+
+        return (true, null);
+    }
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var employee =
+            await _employee_Repo.GetByIdAsync(id);
+
+        if (employee is null)
+            return false;
+
+        _employee_Repo.Delete(employee);
+
+        await _employee_Repo.SaveChangesAsync();
+
+        return true;
+    }
 }

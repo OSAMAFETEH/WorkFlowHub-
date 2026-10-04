@@ -2,7 +2,9 @@
 using WorkFlowHub.Application.DTOs.Employees;
 using WorkFlowHub.Application.Interfaces;
 using WorkFlowHub.Application.Services;
-using WorkFlowHub.Domain.Entities;
+using WorkFlowHub.Application.ViewModels.Employees;
+using WorkFlowHub.Infrastructure.Repositories;
+
 
 namespace WorkFlowHub.Web.Controllers;
 
@@ -29,30 +31,113 @@ public class EmployeesController : Controller
     public async Task<IActionResult>Create()
     {
         var department =await _departmentRepo.GetAllAsync();
-        ViewBag.Departments = department;
-        return View();
+        var model = new EmployeeCreateViewModel
+        {
+            Departments = department
+        };
+        return View(model);
     }
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult>Create(CreateEmployeeDto dto)
+    public async Task<IActionResult>Create(EmployeeCreateViewModel model)
     {
         if(!ModelState.IsValid)
         {
-          await  LoadDepartments();
-            View(dto);
+         model.Departments = await _departmentRepo.GetAllAsync();
+            return View(model);
         }
+        var dto = new CreateEmployeeDto
+        {
+            FullName = model.FullName,
+            Email = model.Email,
+            HireDate = model.HireDate,
+            DepartmentId = model.DepartmentId
+        };
         var result =await _service.CreateAsync(dto);
         if(!result.Success)
         {
             ModelState.AddModelError(nameof(dto.Email), result.Error!);
-            await LoadDepartments();
-            View(dto);
+            model.Departments =
+            await _departmentRepo.GetAllAsync();
+          return  View(model);
         }
         return RedirectToAction(nameof(Index));
 
     }
-    private async Task LoadDepartments()
+    [HttpGet]
+    public async Task<IActionResult>Edit(int id)
     {
-        ViewBag.Departments = await _departmentRepo.GetAllAsync();
+        var employee=await _service.GetByIdAsync(id);
+        if (employee is null)
+            return NotFound();
+
+        var model = new EmployeeEditViewModel
+        {
+            Id = employee.Id,
+            FullName = employee.FullName,
+            Email = employee.Email,
+            HireDate = employee.HireDate,
+            DepartmentId = employee.DepartmentId,
+
+            Departments =
+                await _departmentRepo.GetAllAsync()
+        };
+
+        return View(model);
+    }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(
+    int id,
+    EmployeeEditViewModel model)
+    {
+        if (id != model.Id)
+            return BadRequest();
+
+        if (!ModelState.IsValid)
+        {
+            model.Departments =
+                await _departmentRepo.GetAllAsync();
+
+            return View(model);
+        }
+
+        var dto = new UpdateEmployeeDto
+        {
+            FullName = model.FullName,
+            Email = model.Email,
+            HireDate = model.HireDate,
+            DepartmentId = model.DepartmentId
+        };
+
+        var result = await _service.UpdateAsync(id, dto);
+
+        if (!result.Success)
+        {
+            if (result.Error == "Employee not found.")
+                return NotFound();
+
+            ModelState.AddModelError(
+                nameof(model.Email),
+                result.Error!);
+
+            model.Departments =
+                await _departmentRepo.GetAllAsync();
+
+            return View(model);
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var deleted = await _service.DeleteAsync(id);
+
+        if (!deleted)
+            return NotFound();
+
+        return RedirectToAction(nameof(Index));
     }
 }

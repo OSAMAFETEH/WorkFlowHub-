@@ -1,23 +1,32 @@
-﻿@model EmployeeCreateViewModel
+﻿@model WorkFlowHub.Application.ViewModels.Employees.EmployeeEditViewModel
+
 @{
-    ViewData["Title"] = "Create Employee"; 
+    ViewData["Title"] = "Edit Employee";
 }
-<h1>Create Employee</h1>
-<form method="post"asp-action="Create">
-<div class="text-danger"asp-validation-summary="ModelOnly"></div>
 
-        <div class="mb-3">
-            <label asp-for="FullName"
-                   class="form-label">
-            </label>
+<h1>Edit Employee</h1>
 
-            <input asp-for="FullName"
-                   class="form-control" />
+<form asp-action="Edit" method="post">
 
-            <span asp-validation-for="FullName"
-                  class="text-danger">
-            </span>
-        </div>
+    <input type="hidden" asp-for="Id" />
+
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger">
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FullName"
+               class="form-label">
+        </label>
+
+        <input asp-for="FullName"
+               class="form-control" />
+
+        <span asp-validation-for="FullName"
+              class="text-danger">
+        </span>
+    </div>
+
     <div class="mb-3">
         <label asp-for="Email"
                class="form-label">
@@ -31,6 +40,7 @@
               class="text-danger">
         </span>
     </div>
+
     <div class="mb-3">
         <label asp-for="HireDate"
                class="form-label">
@@ -45,7 +55,6 @@
         </span>
     </div>
 
-
     <div class="mb-3">
         <label asp-for="DepartmentId"
                class="form-label">
@@ -59,8 +68,7 @@
                 -- Select Department --
             </option>
 
-            @foreach (var department in
-                     Model.Departments)
+            @foreach (var department in Model.Departments)
             {
                 <option value="@department.Id">
                     @department.Name
@@ -73,15 +81,19 @@
               class="text-danger">
         </span>
     </div>
+
     <button type="submit"
             class="btn btn-primary">
-        Create Employee
+        Save Changes
     </button>
+
     <a asp-action="Index"
        class="btn btn-secondary">
         Cancel
     </a>
+
 </form>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync(
