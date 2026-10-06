@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using WorkFlowHub.Application.Common;
 using WorkFlowHub.Application.DTOs.Employees;
 using WorkFlowHub.Application.Interfaces;
@@ -10,11 +11,13 @@ public class EmployeeService
 {
     private readonly IEmployeeRepository _employee_Repo;
     private readonly IDepartmentRepository _department_Repo;
+    private readonly ILogger<EmployeeService> _logger;
 
-    public EmployeeService(IEmployeeRepository employeeRepository,IDepartmentRepository departmentRepository)
+    public EmployeeService(IEmployeeRepository employeeRepository,IDepartmentRepository departmentRepository,ILogger<EmployeeService> logger)
     {
         _employee_Repo = employeeRepository;
         _department_Repo = departmentRepository;
+        _logger = logger;
     }
 
     public async Task<PagedResult<EmployeeDto>> SearchAsync(
@@ -88,10 +91,12 @@ public class EmployeeService
         var email = dto.Email.ToLowerInvariant().Trim();
         if(await _employee_Repo.ExistsByEmailAsync(email))
         {
+            _logger.LogWarning("Employee creation failed.Duplicate email: {Email}", email);
             return (false, "Email is already registered.");
         }
         if(!await _department_Repo.ExistAsync(dto.DepartmentId))
         {
+            _logger.LogWarning("Employee creataion failed.Department not found.DepartmentId: {DepartmentId}", dto.DepartmentId);
             return (false, "Selected department does not exist.");
         }
         var employee = new Employee
@@ -103,6 +108,7 @@ public class EmployeeService
         };
         await _employee_Repo.AddAsync(employee);
         await _employee_Repo.SaveChangesAsync();
+        _logger.LogInformation("Employee created successfully. EmployeeId: {EmployeeId} ,Email: {Email}", employee.Id, employee.Email);
         return (true, null);
 
     }
