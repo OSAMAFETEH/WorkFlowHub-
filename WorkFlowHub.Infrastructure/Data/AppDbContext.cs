@@ -12,6 +12,8 @@ namespace WorkFlowHub.Infrastructure.Data
 
         public DbSet<Department> Departments => Set<Department>();
         public DbSet<Employee> Employees => Set<Employee>();
+        public DbSet<Project> Projects => Set<Project>();
+        public DbSet<EmployeeProject> EmployeeProjects => Set<EmployeeProject>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

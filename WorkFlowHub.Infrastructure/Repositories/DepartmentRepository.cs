@@ -1,7 +1,8 @@
-﻿using WorkFlowHub.Application.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using WorkFlowHub.Application.DTOs.Departments;
+using WorkFlowHub.Application.Interfaces;
 using WorkFlowHub.Domain.Entities;
 using WorkFlowHub.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 namespace WorkFlowHub.Infrastructure.Repositories
 {
     public class DepartmentRepository: IDepartmentRepository
@@ -20,7 +21,21 @@ namespace WorkFlowHub.Infrastructure.Repositories
                 .OrderBy(d => d.Name)
                 .ToListAsync();
         }
-
+        public async Task<List<DepartmentDto>>GetAllWithEmployeeCountAsync()
+        {
+            return await _context.Departments
+                .AsNoTracking()
+                .OrderBy(d => d.Name)
+                .Select(d => new DepartmentDto
+                {
+                    Id = d.Id,
+                    Name = d.Name,
+                    Description = d.Description,
+                    CreatedAt = d.CreatedAt,
+                    EmployeeCount = d.Employees.Count()
+                })
+                .ToListAsync();
+        }
         public async Task<Department?> GetByIdAsync(int id)
         {
             return await _context.Departments

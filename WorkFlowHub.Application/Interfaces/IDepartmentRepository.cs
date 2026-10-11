@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using WorkFlowHub.Application.DTOs.Departments;
 using WorkFlowHub.Domain.Entities;
 
 namespace WorkFlowHub.Application.Interfaces
@@ -8,6 +9,7 @@ namespace WorkFlowHub.Application.Interfaces
     public interface IDepartmentRepository
     {
         Task<List<Department>> GetAllAsync();
+        Task<List<DepartmentDto>>GetAllWithEmployeeCountAsync();
 
         Task<Department?> GetByIdAsync(int id);
 

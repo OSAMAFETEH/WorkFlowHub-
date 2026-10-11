@@ -17,18 +17,7 @@ namespace WorkFlowHub.Application.Services
 
         public async Task<List<DepartmentDto>> GetAllAsync()
         {
-            var departments = await _repository.GetAllAsync();
-
-            return departments
-                .Select(d => new DepartmentDto
-                {
-                    Id = d.Id,
-                    Name = d.Name,
-                    Description = d.Description,
-                    CreatedAt = d.CreatedAt,
-                    EmployeeCount = 0
-                })
-                .ToList();
+            return await _repository.GetAllWithEmployeeCountAsync();
         }
 
         public async Task<Department?> GetByIdAsync(int id)

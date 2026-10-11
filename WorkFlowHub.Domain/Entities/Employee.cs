@@ -14,5 +14,7 @@ namespace WorkFlowHub.Domain.Entities
         public int DepartmentId { get; set; }
 
         public Department Department { get; set; } = null!;
+        public ICollection<EmployeeProject> EmployeeProjects { get; set; }
+    = new List<EmployeeProject>();
     }
 }
